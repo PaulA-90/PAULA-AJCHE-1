@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Rutas de Ventas</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--light);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(44, 62, 80, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 30px;
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--secondary);
+            color: var(--light);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            color: var(--dark);
+        }
+        
+        button {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-logout {
+            background-color: var(--danger);
+            width: auto;
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+        }
+        
+        .vendedor-info {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .vendedor-info img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--secondary);
+            margin-bottom: 15px;
+        }
+        
+        .vendedor-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: rgba(44, 62, 80, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-card h4 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            color: var(--secondary);
+        }
+        
+        .ruta-list {
+            list-style-type: none;
+        }
+        
+        .ruta-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        .ruta-item:hover {
+            background-color: rgba(52, 152, 219, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .ruta-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background-color: var(--success);
+        }
+        
+        .status-pending {
+            background-color: var(--warning);
+        }
+        
+        .status-cancelled {
+            background-color: var(--danger);
+        }
+        
+        .tab-container {
+            margin-top: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab.active {
+            background-color: var(--secondary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(44, 62, 80, 0.6);
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        th {
+            background-color: rgba(52, 152, 219, 0.3);
+            font-weight: 600;
+        }
+        
+        tr:hover {
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.5s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success);
+        }
+        
+        .notification.error {
+            background-color: var(--danger);
+        }
+        
+        .password-note {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Login -->
+        <div id="login-screen" class="card login-container">
+            <h2 class="section-title">Acceso Vendedores</h2>
+            <div class="form-group">
+                <label for="vendedor">Vendedor</label>
+                <select id="vendedor">
+                    <option value="">Seleccione un vendedor</option>
+                    <option value="1">Carlos Martínez</option>
+                    <option value="2">Ana Rodríguez</option>
+                    <option value="3">Luis González</option>
+                    <option value="4">María Pérez</option>
+                    <option value="5">Jorge Sánchez</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingrese su contraseña">
+            </div>
+            <button id="login-btn">Ingresar al Sistema</button>
+            <div class="password-note">
+                Nota: La contraseña para todos los vendedores es <strong>1234</strong>
+            </div>
+        </div>
+        
+        <!-- Panel Principal (oculto inicialmente) -->
+        <div id="main-panel" class="hidden">
+            <header>
+                <h1>Sistema de Control de Rutas de Ventas</h1>
+                <p>Gestión eficiente de rutas y clientes para vendedores</p>
+                <button id="logout-btn" class="btn-logout">Cerrar Sesión</button>
+            </header>
+            
+            <div class="dashboard">
+                <div class="card">
+                    <div class="vendedor-info">
+                        <img id="vendedor-img" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Vendedor">
+                        <h3 id="vendedor-name">Carlos Martínez</h3>
+                        <p>Región: Centro</p>
+                        <p>Ventas este mes: <strong>$15,800</strong></p>
+                        
+                        <div class="stats">
+                            <div class="stat-card">
+                                <h4>18</h4>
+                                <p>Clientes</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>7</h4>
+                                <p>Rutas Activas</p>
+                            </div>
+                            <div class="stat-card">
+                                <h4>92%</h4>
+                                <p>Eficiencia</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h2 class="section-title">Mis Rutas de Hoy</h2>
+                    <ul class="ruta-list">
+                        <li class="ruta-item">
+                            <div>
+                                <strong>Cliente: </strong>ElectroHome <br>
+                                <small>09:00 AM - Dirección: Av. Principal 123</small>
+                            </div>
+                            <span class="ruta-status status-pending">Pendiente</span>
+                        </li>
+                        <li class="ruta-item">
+                            <div>
+                                <strong>Cliente: </strong>TecnoShop <br>
+                                <small>11:30 AM - Dirección: Calle Comercio 456</small>
+                            </div>
+                            <span class="ruta-status status-pending">Pendiente</span>
+                        </li>
+                        <li class="ruta-item">
+                            <div>
+                                <strong>Cliente: </strong>Muebles Modernos <br>
+                                <small>02:00 PM - Dirección: Blvd. Industrial 789</small>
+                            </div>
+                            <span class="ruta-status status-pending">Pendiente</span>
+                        </li>
+                        <li class="ruta-item">
+                            <div>
+                                <strong>Cliente: </strong>Distribuidora Rápida <br>
+                                <small>04:30 PM - Dirección: Zona Franca Sector B</small>
+                            </div>
+                            <span class="ruta-status status-completed">Completada</span>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-container">
+                        <div class="tabs">
+                            <div class="tab active" data-tab="proximas">Próximas Rutas</div>
+                            <div class="tab" data-tab="historial">Historial</div>
+                        </div>
+                        
+                        <div class="tab-content active" id="proximas">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Ubicación</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>20/08/2025</td>
+                                            <td>SuperElectro</td>
+                                            <td>Centro Comercial Plaza</td>
+                                            <td><span class="ruta-status status-pending">Pendiente</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>21/08/2025</td>
+                                            <td>Muebles Elegantes</td>
+                                            <td>Av. Los Comercios 321</td>
+                                            <td><span class="ruta-status status-pending">Pendiente</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>22/08/2025</td>
+                                            <td>DistriTech</td>
+                                            <td>Zona Industrial Norte</td>
+                                            <td><span class="ruta-status status-pending">Pendiente</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="tab-content" id="historial">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Cliente</th>
+                                            <th>Venta</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>15/08/2025</td>
+                                            <td>ElectroHome</td>
+                                            <td>$2,500</td>
+                                            <td><span class="ruta-status status-completed">Completada</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>14/08/2025</td>
+                                            <td>TecnoShop</td>
+                                            <td>$1,800</td>
+                                            <td><span class="ruta-status status-completed">Completada</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>12/08/2025</td>
+                                            <td>Muebles Modernos</td>
+                                            <td>$4,200</td>
+                                            <td><span class="ruta-status status-completed">Completada</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Datos de vendedores
+        const vendedores = {
+            1: { nombre: "Carlos Martínez", img: "https://randomuser.me/api/portraits/men/32.jpg" },
+            2: { nombre: "Ana Rodríguez", img: "https://randomuser.me/api/portraits/women/44.jpg" },
+            3: { nombre: "Luis González", img: "https://randomuser.me/api/portraits/men/22.jpg" },
+            4: { nombre: "María Pérez", img: "https://randomuser.me/api/portraits/women/68.jpg" },
+            5: { nombre: "Jorge Sánchez", img: "https://randomuser.me/api/portraits/men/75.jpg" }
+        };
+        
+        // Elementos del DOM
+        const loginScreen = document.getElementById('login-screen');
+        const mainPanel = document.getElementById('main-panel');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const vendedorSelect = document.getElementById('vendedor');
+        const passwordInput = document.getElementById('password');
+        const vendedorName = document.getElementById('vendedor-name');
+        const vendedorImg = document.getElementById('vendedor-img');
+        const notification = document.getElementById('notification');
+        
+        // Función para mostrar notificaciones
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Manejar el evento de login
+        loginBtn.addEventListener('click', () => {
+            const vendedorId = vendedorSelect.value;
+            const password = passwordInput.value;
+            
+            if (!vendedorId) {
+                showNotification('Por favor seleccione un vendedor', 'error');
+                return;
+            }
+            
+            if (password !== '1234') {
+                showNotification('Contraseña incorrecta. Intente nuevamente.', 'error');
+                return;
+            }
+            
+            // Actualizar información del vendedor
+            const vendedor = vendedores[vendedorId];
+            vendedorName.textContent = vendedor.nombre;
+            vendedorImg.src = vendedor.img;
+            
+            // Cambiar a la vista principal
+            loginScreen.classList.add('hidden');
+            mainPanel.classList.remove('hidden');
+            
+            showNotification(`Bienvenido ${vendedor.nombre}`, 'success');
+        });
+        
+        // Manejar el evento de logout
+        logoutBtn.addEventListener('click', () => {
+            mainPanel.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            passwordInput.value = '';
+            vendedorSelect.value = '';
+            showNotification('Sesión cerrada correctamente', 'success');
+        });
+        
+        // Manejar cambio de pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remover clase activa de todas las pestañas
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Añadir clase activa a la pestaña clickeada
+                tab.classList.add('active');
+                
+                // Ocultar todos los contenidos
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Mostrar el contenido correspondiente
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
